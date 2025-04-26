@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from pydantic import BaseModel
 from langgraph.graph import StateGraph, START, END
 import sqlite3
+import os
 
 from langgraph.types import Command
 from langgraph.checkpoint.sqlite import SqliteSaver  # SQLite 기반 체크포인트
@@ -142,9 +143,6 @@ builder.add_node("research_agent", research_agent)
 builder.add_node("summarize_agent", summarize_agent)
 # 엣지 연결: Supervisor가 모든 흐름의 중심
 builder.add_edge(START, "supervisor")
-builder.add_edge("supervisor", "brainstorm_agent")
-builder.add_edge("supervisor", "research_agent")
-builder.add_edge("supervisor", "summarize_agent")
 builder.add_edge("brainstorm_agent", "supervisor")
 builder.add_edge("research_agent", "supervisor")
 builder.add_edge("summarize_agent", "supervisor")
@@ -168,6 +166,7 @@ async def main():
         state0 = {"topic": "인공지능"}  # 초기 주제 설정
         result = await graph.ainvoke(state0, config)
         print(result)
+        os._exit(0)
     except AttributeError as e:
         print(f"AttributeError occurred: {e}")    
 
